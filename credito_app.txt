@@ -1,0 +1,19 @@
+Rutinario es
+
+
+una aplicación educativa pensada para prácticas iniciales de lectura, escritura y oralidad.
+
+Este trabajo tiene licencia CC BY-NC-SA 4.0.© 
+Para ver una copia de esta licencia, visite 
+http://creativecommons.org/licenses/by-nc-sa/4.0/© 23 por @mpachetta
+
+Imágenes obtenidas gracias a FLATICON
+https://www.flaticon.es/
+Listen icons created by Freepik
+<a href="https://www.flaticon.es/iconos-gratis/garrapata" title="garrapata iconos">Garrapata iconos creados por Roundicons - Flaticon</a>
+
+
+arasaac
+
+Free Audio Library
+https://sfx.freeaudiolibrary.com/es/
