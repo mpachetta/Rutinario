@@ -7,7 +7,7 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 from pygame import *
 from functools import partial
-
+import cv2
 import csv
 from tkinter import ttk
 from PIL import Image, ImageTk
@@ -364,7 +364,7 @@ class StepsWindow:
         self.btn_cerrar.place(x=330,y=17)
         self.steps_container=tk.Frame(self.root)
         self.steps_container.pack()
-        
+        self.i = 0
 
         
         
@@ -373,154 +373,161 @@ class StepsWindow:
         self.steps = {
             "Me despierto": [
                 {
-                    "text": "Me \ndespierto",
-                    "image": "Image/wake_up.png",
+                    "text": "Me despierto",
+                    "image": "Images/wake_up.png",
+                    "image_sm": "Images_small/wake_up.png",
                     "audio": "Sounds/me despierto.wav"
                 },
                 {
-                    "text": "Salgo de \nla cama",
-                    "image": "Image/get_out_of_bed.png",
+                    "text": "Salgo de la cama",
+                    "image": "Images/get_out_of_bed.png",
+                    "image_sm": "Images_small/get_out_of_bed.png",
                     "audio": "Sounds/salgo de la cama.wav"
                 },
                 {
-                    "text": "Cepillo \nmis dientes",
-                    "image": "Image/cepillarsedientes.png",
+                    "text": "Cepillo mis dientes",
+                    "image": "Images/cepillarsedientes.png",
+                    "image_sm": "Images_small/cepillarsedientes.png",
                     "audio": "Sounds/cepillo mis dientes.wav"
                 },
                 {
-                    "text": "Me pongo \nla ropa",
-                    "image": "Image/mepongolaropa.png",
+                    "text": "Me pongo la ropa",
+                    "image": "Images/mevistodearriba.png",
+                    "image_sm": "Images_small/mevistodearriba.png",
                     "audio": "Sounds/me pongo la ropa.wav"                    
                 }
             ],
             "Me visto": [
                 {
                     "text": "Busco la ropa",
-                    "image": "Image/buscolaropa.png",
+                    "image": "Images/buscolaropa.png",
+                    "image_sm": "Images_small/buscolaropa.png",
                     "audio": "Sounds/busco la ropa.wav"
                 },
                 {
-                    "text": "Me pongo ropa \ninterior limpia",
-                    "image": "Image/ropainteriorlimpia.png",
+                    "text": "Me pongo ropa interior limpia",
+                    "image": "Images/ropainteriorlimpia.png",
+                    "image_sm": "Images_small/ropainteriorlimpia.png",
                     "audio": "Sounds/me pongo ropa interior limpia.wav"
                 },
                 {
-                    "text": "Me visto la \nparte de arriba",
-                    "image": "Image/mevistodearriba.png",
+                    "text": "Me visto la parte de arriba",
+                    "image": "Images/mevistodearriba.png",
+                    "image_sm": "Images_small/mevistodearriba.png",
                     "audio": "Sounds/me visto la parte de arriba.wav"
                 },
                 {
-                    "text": "Me visto la \nparte de abajo",
-                    "image": "Image/mevistodeabajo.png",
+                    "text": "Me visto la parte de abajo",
+                    "image": "Images/mevistodeabajo.png",
+                    "image_sm": "Images_small/mevistodeabajo.png",
                     "audio": "Sounds/me visto la parte de abajo.wav"
                 },
                 {
-                    "text": "Me pongo \nlas zapatillas",
-                    "image": "Image/mepongozapatillas.png",
+                    "text": "Me pongo las zapatillas",
+                    "image": "Images/mepongozapatillas.png",
+                    "image_sm": "Images_small/mepongozapatillas.png",
                     "audio": "Sounds/me pongo las zapatillas.wav"
                 }
             ],
             "Me lavo las manos": [
                 {
-                    "text": "Abro \nla canilla",
-                    "image": "Image/Abro la canilla.png",
+                    "text": "Abro la canilla",
+                    "image": "Images/Abro la canilla.png",
+                    "image_sm": "Images_small/Abro la canilla.png",
                     "audio": "Sounds/Abro la canilla.wav"
                 },
                 {
-                    "text": "Me mojo las \nmanos y las \nenjabono",
-                    "image": "Image/Me mojo las manos y las enjabono.png",
+                    "text": "Me mojo las manos y las enjabono",
+                    "image": "Images/Me mojo las manos y las enjabono.png",
+                    "image": "Images/Me mojo las manos y las enjabono.png",
+                    "image_sm": "Images_small/Me mojo las manos y las enjabono.png",
                     "audio": "Sounds/Me mojo las manos y las enjabono.wav"
                 },
                 {
                     "text": "Me enjuago",
-                    "image": "Image/Me enjuago.png",
+                    "image": "Images/Me enjuago.png",
+                    "image_sm": "Images_small/Me enjuago.png",
                     "audio": "Sounds/Me enjuago.wav"
                 },
                 {
-                    "text": "Cierro \nla canilla",
-                    "image": "Image/Cierro la canilla.png",
+                    "text": "Cierro la canilla",
+                    "image": "Images/Cierro la canilla.png",
+                    "image_sm": "Images_small/Cierro la canilla.png",
                     "audio": "Sounds/Cierro la canilla.wav"
                 },
                 {
-                    "text": "Me seco \nlas manos",
-                    "image": "Image/Me seco las manos.png",
+                    "text": "Me seco las manos",
+                    "image": "Images/Me seco las manos.png",
+                    "image_sm": "Images_small/Me seco las manos.png",
                     "audio": "Sounds/Me seco las manos.wav"
                 }
             ],
             "Me voy a comer": [
                 {
                     "text": "Put on shirt",
-                    "image": "Image\put_on_shirt.png",
+                    "image": "Images/put_on_shirt.png",
+                    "image_sm": "Image_small/put_on_shirt.png",
                     "audio": "Sounds\put_on_shirt.wav"
                 },
                 {
                     "text": "Put on pants",
-                    "image": "Image\put_on_pants.png",
+                    "image": "Images/put_on_pants.png",
+                    "image_sm": "Image_small/put_on_pants.png",
                     "audio": "Sounds\put_on_pants.wav"
                 },
                 {
                     "text": "Put on shoes",
-                    "image": "Image\put_on_shoes.png",
+                    "image": "Images/put_on_shoes.png",
+                    "image_sm": "Image_small/put_on_shoes.png",
                     "audio": "Sounds\put_on_shoes.wav"
                 }
             ]
                 }  
         self.show_step()
-
+    
     def show_step(self):
+        
 
-
-# Agrega una lista de imágenes para mantener una referencia a cada una
+        # Agrega una lista de imágenes y sonidos para mantener una referencia a cada una
         self.images = []
         self.images_sound=[]
         self.sounds=[]
         self.images_check=[]
-        self.check_vars=[]
-        i = 0
         
+        
+   
 
-        for step in self.steps[self.routine]:
+        step=self.steps[self.routine][self.i]
             # Crea una nueva instancia de PhotoImage para cada imagen
-            image = tk.PhotoImage(file=step["image"])
-            self.images.append(image)  # Agrega la imagen a la lista de imágenes
+        image = tk.PhotoImage(file=step["image"])
+        self.images.append(image)  # Agrega la imagen a la lista de imágenes
             
-            self.step_label = tk.Label(self.steps_container, text=step["text"].upper(),font=("Comic Sans MS",8))
-            self.step_label.grid(column=0, row=i)
+        self.step_label = tk.Label(self.steps_container, text=step["text"].upper(),font=("Comic Sans MS",8))
+        self.step_label.grid(column=0, row=0)
 
             # Usa la imagen correspondiente en cada label
-            self.image_label = tk.Label(self.steps_container, image=image)
-            self.image_label.grid(column=1, row=i,pady=5)
+        self.image_label = tk.Label(self.steps_container, image=image)
+        self.image_label.grid(column=0, row=1,pady=5)
 
-            image_sound = tk.PhotoImage(file="listen1.png")
-            self.images_sound.append(image_sound)
+        image_sound = tk.PhotoImage(file="listen1.png")
+        self.images_sound.append(image_sound)
             
-            sound = pygame.mixer.Sound(step["audio"])
-            self.sounds.append(sound)
+        sound = pygame.mixer.Sound(step["audio"])
+        self.sounds.append(sound)
             
-            # Crea una variable de control y agrega una referencia a la lista
-            var = tk.BooleanVar()
-            self.check_vars.append(var)
-            audio_button = tk.Button(self.steps_container, text="Play Audio", image=image_sound, command=partial(self.play_audio,sound))
-            audio_button.grid(column=2, row=i)
+
+        audio_button = tk.Button(self.steps_container, text="Play Audio", image=image_sound, command=partial(self.play_audio,sound))
+        audio_button.grid(column=0, row=2)
                        
-            image_check = tk.PhotoImage(file="no-comprobado.png")
-            self.images_check.append(image_check)
-            state = 'normal' if i == 0 else 'disabled'
-            step_check = tk.Checkbutton(self.steps_container, image=image_check, highlightthickness=0, relief="flat", variable=var, command=lambda i=i: self.update_check(i), state=state)
-            step_check.grid(column=3, row=i)
-            
-
-            i += 1
-        if i == len(self.steps[self.routine]):
-            
-            self.go_main_screen_button=tk.Button(self.steps_container,text="Volver",command=self.go_back,state="disabled")
-            self.go_main_screen_button.grid(column=0,row=i)
-            self.next_step_button = tk.Button(self.steps_container, text="Continuar", command=self.next_routin,state="disabled")
-            self.next_step_button.grid(column=2,row=i)
-            
-            
+        image_check = tk.PhotoImage(file="no-comprobado+.png")
+        self.images_check.append(image_check)
+  
+        self.step_check = tk.Button(self.steps_container, image=image_check, highlightthickness=0, relief="flat", command= self.update_check)
+        self.step_check.grid(column=0, row=3,pady=20)
         
-    
+            
+        self.i+=1          
+          
 
     
     def play_audio(self, audio_file):
@@ -528,58 +535,51 @@ class StepsWindow:
         audio_file.play()
         
 
-    def update_check(self, index):
-        # Obtiene el estado de la variable de control correspondiente al índice
-        var = self.check_vars[index]
-        checked = var.get()
+    def update_check(self):
+
         
         sound_check = pygame.mixer.Sound("beeps-bonks-boinks 1.mp3")
-        
+        self.step_check.config(command="")
         
         sound_check.play()
-        
-        # Actualiza la imagen de image_check según el estado
-        if checked:
-            self.images_check[index] = tk.PhotoImage(file="comprobado.png")
-        else:
-            self.images_check[index] = tk.PhotoImage(file="no-comprobado.png")
-        
-        # Actualiza el Checkbutton correspondiente con la imagen actualizada
-        self.steps_container.grid_slaves(row=index, column=3)[0].config(image=self.images_check[index])
-        
-        if self.all_steps_completed()==True:
+        self.images_check_ok = tk.PhotoImage(file="comprobado+.png")
+        self.step_check.config(image=self.images_check_ok)
+        self.root.after(1000,lambda:self.next_page())
 
+
+    def next_page(self):
+        for child in self.steps_container.winfo_children():
+            child.grid_forget()
+        if self.i == len(self.steps[self.routine]):
             sound_check=pygame.mixer.Sound("beeps-bonks-boinks 5.mp3")
             sound_check.play()
-        # Actualiza el Checkbutton correspondiente con la imagen actualizada
-        check_button = self.steps_container.grid_slaves(row=index, column=3)[0]
-        check_button.config(image=self.images_check[index])
+            self.felicitar()
+            self.image_next=tk.PhotoImage(file="siguiente.png")
+            self.next_step_button = tk.Button(self.steps_container, text="Siguiente rutina", command=self.next_routin,image=self.image_next,border=0)
+            self.next_step_button.pack(pady=20) 
+            self.go_main_screen_button=tk.Button(self.steps_container,text="Volver",command=self.go_back)
+            self.go_main_screen_button.pack(pady=80)
 
-        # Comprueba si todos los Checkbutton están marcados
-        all_checked = all(var.get() for var in self.check_vars)
-
-        if all_checked:
-        # Si todos los Checkbutton están marcados, habilita el botón 'Next Step'
-            self.next_step_button.config(state='normal')
-            self.next_step_button.config(bg="lightgreen")
-            self.go_main_screen_button.config(state="normal")
         else:
-        # Si no están todos marcados, habilita el siguiente Checkbutton
-            next_index = index + 1
-            if next_index < len(self.check_vars):
-                next_check_button = self.steps_container.grid_slaves(row=next_index, column=3)[0]
-                next_check_button.config(state='normal')
-
-    def all_steps_completed(self):
-        return all(var.get() for var in self.check_vars)
-
+            self.show_step()
+        
     def next_routin(self):
+        
         for elem in self.root.winfo_children():
             elem.destroy()
         if self.routine == "Me despierto":
             self.steps_window = StepsWindow(self.root, "Me visto")
         
-        MainWindow(root)
+        else:
+            MainWindow(root)
+    
+    def felicitar(self):
+        self.image_a=tk.PhotoImage(file=self.steps[self.routine][0]["image"])
+        self.label_congratulations_img=tk.Label(self.steps_container,image=self.image_a)
+        self.label_congratulations_img.pack(pady=5)
+        self.label_congratulations=tk.Label(self.steps_container,text="¡Felicitaciones!",font=("Comic Sans MS",16),fg="blue")
+        self.label_congratulations.pack(pady=5)
+    
     def go_back(self):
         self.routin_title.pack_forget()
         self.steps_container.pack_forget()
