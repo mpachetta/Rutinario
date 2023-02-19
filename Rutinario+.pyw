@@ -1,57 +1,18 @@
 import tkinter as tk
-from tkinter import messagebox
-import random as rd
-
+from tkinter import filedialog as fd
 import pygame
 import sounddevice as sd
 from scipy.io.wavfile import write
 from pygame import *
 from functools import partial
-import cv2
+import os
 import csv
 from tkinter import ttk
 from PIL import Image, ImageTk
 import pandas as pd
 
-colors = ["#88F2A2", "#7D7ABF", "#F2C335", "#D93B84", "#F2D649","#60A140"]
+colors = ["#F9F8F9", "#91D7F2", "#D96277", "#F2B544", "#0D0D0D"]
 pygame.mixer.init()
-
-class Game:
-    def __init__(self):
-        self.root = root
-        self.counter = 3
-
-    def define_element(self, file):
-        self.file = file
-        with open(self.file, "r", encoding="utf-8") as file:
-            reader = csv.reader(file)
-
-            self.element = list(reader)
-
-    def choose(self):
-
-        self.selected_index = rd.randrange(1, len(self.element))
-
-        return self.element[self.selected_index]
-
-    def listen(self, sound):
-        pygame.init()
-        pygame.mixer.init()
-        pygame.mixer.music.load(sound)
-        pygame.mixer.music.play()
-        while pygame.mixer.music.get_busy() == True:
-            continue
-
-    def speaching(self):
-        return self.element[self.selected_index]
-
-    def end_screen(self):
-        if self.counter < 1:
-
-            self.root.after(2000, lambda: self.go_back())
-        else:
-            self.root.after(2200, lambda: self.play())
-
 
 class User:
 
@@ -59,8 +20,10 @@ class User:
 
         self.user_name = ""
         self.user_password = ""
+        self.user_img=""
+        
         self.user_stars = 0
-
+        
     def set_name(self, name):
         self.user_name = name
 
@@ -87,28 +50,56 @@ class User:
 
         x = str(self.user_stars) + " puntos"
         return x
+    def get_user_img(self):
+        if os.path.exists(str("Images_user/"+self.get_name()+".png")):
+            self.user_img=tk.PhotoImage(file=str("Images_user/"+self.get_name()+".png"))
+        else:
+            self.user_img=tk.PhotoImage(file="usuario.png")
+    def change_user_img(self):
+        # Abrir archivo de imagen
+        file_path = fd.askopenfilename()
+        
+        image = Image.open(file_path)
 
+        # Cambiar tamaño de la imagen a 32x32
+        resized_img = image.resize((32, 32))
+        
+        save_dir="Images_user"
+        filename=self.get_name()+".png"
+        save_path = os.path.join(save_dir, str(filename))
+        resized_img.save(save_path)
+        # Convertir imagen para usar en tkinter
+        photo = ImageTk.PhotoImage(resized_img)
+
+        # Asignar imagen al atributo user_img
+        self.user_img = photo
+
+
+
+        
+    
 
 class MainScreen:
     def __init__(self, root):
         self.root = root
         self.root.geometry("350x660")
+        self.root.configure(bg=colors[0])
 
         self.title = tk.Label(self.root, text="RUTINARIO",
-                           font=("Fun Blob", 35),fg=colors[5])
+                           font=("Handrawn Color Kid", 40),fg=colors[3],bg=colors[0])
         self.title.pack(pady=20)
         self.img_logo = tk.PhotoImage(file="estilo-de-vida.png")
-        self.container1 = tk.Frame(self.root)
+        self.container1 = tk.Frame(self.root,bg=colors[0])
         self.container1.pack()
-        self.logo = ttk.Label(self.container1, image=self.img_logo)
+        self.logo = tk.Label(self.container1, image=self.img_logo,bg=colors[0])
         self.logo.grid(row=0, columnspan=2)
         self.btn_style = ttk.Style()
         self.btn_style.configure("MyButton.TButton", font=("Serif", 12))
         self.login_button = ttk.Button(
-            self.container1, text="Iniciar sesión", command=self.login, style="MyButton.TButton")
+        self.container1, text="Iniciar sesión", command=self.login, style="MyButton.TButton")
         self.login_button.grid(row=1, column=0, pady=20)
         self.signup_button = ttk.Button(
-            self.container1, text="Registrarse", style="MyButton.TButton", command=self.signup)
+        self.container1, text="Registrarse", style="MyButton.TButton", command=self.signup)
         self.signup_button.grid(row=1, column=1, pady=20)
 
         self.img_exit = tk.PhotoImage(file="off.png")
@@ -116,23 +107,23 @@ class MainScreen:
                            image=self.img_exit, command=self.app_exit)
         self.exit.grid(columnspan=2, row=2, pady=35)
         self.creditos = tk.Button(
-            self.container1, text="Créditos", command=self.ir_creditos)
+        self.container1, text="Créditos", command=self.ir_creditos)
         self.creditos.grid(columnspan=2, row=3, pady=35)
 
-        self.container = tk.Label(self.root)
-        self.label_username = tk.Label(self.container, text="Nombre de usuario: ")
+        self.container = tk.Label(self.root,bg=colors[0])
+        self.label_username = tk.Label(self.container, text="Nombre de usuario: ",bg=colors[0])
         self.entry_username = tk.Entry(self.container)
-        self.label_pasword = tk.Label(self.container, text="Ingrese una clave: ")
+        self.label_pasword = tk.Label(self.container, text="Ingrese una clave: ",bg=colors[0])
         self.entry_password = tk.Entry(self.container, show="*")
         self.label_pasword_repeat = tk.Label(
-            self.container, text="Repita la clave: ")
+        self.container, text="Repita la clave: ")
         self.entry_password_repeat = tk.Entry(self.container, show="*")
         self.button_signup = ttk.Button(
-            self.container, text="Registrarse", command=self.datos_completos, style="MyButton.TButton")
+        self.container, text="Registrarse", command=self.datos_completos, style="MyButton.TButton")
         self.button_login = ttk.Button(self.container, text="Ingresar", command=lambda: self.login_comprobate(
-            self.entry_username.get(), self.entry_password.get()), style="MyButton.TButton")
+        self.entry_username.get(), self.entry_password.get()), style="MyButton.TButton")
         self.button_back = tk.Button(
-            self.container, text="Volver", command=self.volver)
+        self.container, text="Volver", command=self.volver)
 
     def login(self):
         self.clean()
@@ -282,10 +273,10 @@ class MainScreen:
 class Creditos:
     def __init__(self, root):
         self.root = root
-        self.credito_title = tk.Label(text="PALABRERO", font=("Fun Blob", 35),fg=colors[5])
+        self.credito_title = tk.Label(text="RUTINARIO", font=("Handrawn Color Kid", 40),fg=colors[3],bg=colors[0])
         self.credito_title.pack(pady=20)
         self.credito_app = tk.Message(self.root, text=open(
-            "credito_app.txt", "r", encoding="UTF-8").read(), bg=colors[4], width=300)
+            "credito_app.txt", "r", encoding="UTF-8").read(), bg=colors[2], width=300)
         self.credito_app.pack()
         #self.img_cc = Image.open("cc.png")
         #self.img_cc_tk = ImageTk.PhotoImage(self.img_cc)
@@ -312,21 +303,85 @@ class MainWindow:
     def __init__(self, root):
         self.root = root
         self.root.geometry("350x660")
+        self.root.configure(bg=colors[0])
         #self.root.title("Routine App")
+        self.label_box = tk.Frame(self.root,bg=colors[1])
+        self.label_box.pack(pady=5)
+        self.img_0 = tk.PhotoImage(file="exit.png")
+        
+        
+        self.style = ttk.Style()
+        self.style.configure("Label.User.TLabel", width=18, height=3, bg=colors[1])
 
+        current_user.get_user_img()
+        self.label_username = ttk.Label(
+            self.label_box, text=current_user.get_name(), image=current_user.user_img, compound="left",style="Label.User.TLabel")
+        
+        
+        self.label_username.bind("<Button-1>",self.new_user_img)
+        
+        self.label_stars = tk.Label(
+            self.label_box, text=current_user.publish_stars(), width=20, height=3, bg=colors[1])
+
+        self.log_out = tk.Button(
+            self.label_box, image=self.img_0,command=self.exit)
+
+        self.label_username.grid(column=0, row=0)
+        self.label_stars.grid(column=1, row=0)
+        self.log_out.grid(column=2, row=0)
         # create routines buttons
-        self.wake_up_button = tk.Button(self.root, text="Me despierto", command=self.wake_up)
+        
+        self.btn_box=tk.Frame(self.root,bg=colors[0])
+        self.btn_box.pack()
+        self.img_enmicasa=tk.PhotoImage(file="Images_btn/enmicasa(1).png")
+        self.img_enlaescuela=tk.PhotoImage(file="Images_btn/enlaescuela(1).png")
+        self.img_medespierto=tk.PhotoImage(file="Images_btn/wake_up(1).png")
+        self.img_mevisto=tk.PhotoImage(file="Images_btn/buscolaropa(1).png")
+        self.img_melavolasmanos=tk.PhotoImage(file="Images_btn/Me enjabono las manos(1).png")
+        self.img_voyacomer=tk.PhotoImage(file="Images_btn/voyacomer(1).png")
+        
+        self.enmicasa_button = ttk.Button(self.btn_box, text="En mi casa", image=self.img_enmicasa,compound="left",width=100,command=self.en_mi_casa)
+        self.enmicasa_button.pack()
+        self.enlaescuela_button = ttk.Button(self.btn_box, text="En la escuela", image=self.img_enlaescuela,compound="left",width=100,command=self.en_la_escuela)
+        self.enlaescuela_button.pack()
+    
+    def new_user_img(self,event):
+        current_user.change_user_img()
+        self.clean()
+        MainWindow(root)    
+    
+    def en_mi_casa(self):
+        self.clean_btn()
+        self.wake_up_button = ttk.Button(self.btn_box, text="Me despierto", image=self.img_medespierto,compound="left",width=100,command=self.wake_up)
         self.wake_up_button.pack()
 
-        self.dress_up_button = tk.Button(self.root, text="Me visto", command=self.dress_up)
+        self.dress_up_button = ttk.Button(self.btn_box, text="Me visto", image=self.img_mevisto,compound="left",width=100,command=self.dress_up)
         self.dress_up_button.pack()
 
-        self.hygiene_button = tk.Button(self.root, text="Me lavo las manos", command=self.hygiene)
+        self.hygiene_button = ttk.Button(self.btn_box, text="Me lavo las manos", image=self.img_melavolasmanos,compound="left",width=100,command=self.hygiene)
+        self.hygiene_button.pack()
+        
+        self.food_button = ttk.Button(self.btn_box, text="Voy a comer", image=self.img_voyacomer,compound="left",width=100, command=self.food)
+        self.food_button.pack()
+
+
+        self.btn_volver=ttk.Button(self.btn_box,text="Volver",command=self.volver_pantalla)
+        self.btn_volver.pack()
+    def en_la_escuela(self):
+        self.clean_btn()
+        self.hygiene_button = ttk.Button(self.btn_box, text="Me lavo las manos", image=self.img_melavolasmanos,compound="left",width=100,command=self.hygiene)
         self.hygiene_button.pack()
 
-        self.food_button = tk.Button(self.root, text="Voy a comer", command=self.food)
-        self.food_button.pack()
-        
+        self.btn_volver=ttk.Button(self.btn_box,text="Volver",command=self.volver_pantalla)
+        self.btn_volver.pack()
+        pass
+    
+    def exit(self):
+
+  
+        self.label_box.pack_forget()
+        self.btn_box.pack_forget()
+        MainScreen(self.root)    
 
     def wake_up(self):
         self.open_routine("Me despierto")
@@ -341,31 +396,39 @@ class MainWindow:
     def food(self):
         self.open_routine("Voy a comer")
 
-
     def open_routine(self, routine):
         self.clean()
         self.steps_window = StepsWindow(self.root, routine)
         
     def clean(self):
-        self.wake_up_button.pack_forget()
-        self.dress_up_button.pack_forget()
-        self.hygiene_button.pack_forget()
-        self.food_button.pack_forget()
+        self.btn_box.pack_forget()
+        self.label_box.pack_forget()
+    
+    def clean_btn(self):
+        for child in self.btn_box.winfo_children():
+            child.pack_forget()   
+        for child in self.label_box.winfo_children():
+            child.pack_forget() 
 
+    def volver_pantalla(self):
+        self.clean()
+        MainWindow(root)
 
 class StepsWindow:
     def __init__(self, root, routine):
         self.root=root
+        self.root.configure(bg=colors[0])
         self.routine = routine
         self.routin_title=tk.Label(self.root,text=self.routine.upper(),bg="black",fg="white",font=("Comic Sans MS",12))
         self.routin_title.pack(fill="x",pady=15)
         
         self.btn_cerrar=tk.Button(self.root,text="X",command=self.go_back,bg="black",fg="white")
         self.btn_cerrar.place(x=330,y=17)
-        self.steps_container=tk.Frame(self.root)
+        self.steps_container=tk.Frame(self.root,bg=colors[0])
         self.steps_container.pack()
         self.i = 0
-
+        self.progressbar_value=0
+        self.progressbar = ttk.Progressbar(self.steps_container, orient="horizontal", length=300, mode="determinate",value=self.progressbar_value)
         
         
         #self.root.title("Steps")
@@ -375,25 +438,22 @@ class StepsWindow:
                 {
                     "text": "Me despierto",
                     "image": "Images/wake_up.png",
-                    "image_sm": "Images_small/wake_up.png",
+                    "ico_btn": "Images_btn/wake_up.png",
                     "audio": "Sounds/me despierto.wav"
                 },
                 {
                     "text": "Salgo de la cama",
                     "image": "Images/get_out_of_bed.png",
-                    "image_sm": "Images_small/get_out_of_bed.png",
                     "audio": "Sounds/salgo de la cama.wav"
                 },
                 {
                     "text": "Cepillo mis dientes",
                     "image": "Images/cepillarsedientes.png",
-                    "image_sm": "Images_small/cepillarsedientes.png",
                     "audio": "Sounds/cepillo mis dientes.wav"
                 },
                 {
                     "text": "Me pongo la ropa",
                     "image": "Images/mevistodearriba.png",
-                    "image_sm": "Images_small/mevistodearriba.png",
                     "audio": "Sounds/me pongo la ropa.wav"                    
                 }
             ],
@@ -401,31 +461,27 @@ class StepsWindow:
                 {
                     "text": "Busco la ropa",
                     "image": "Images/buscolaropa.png",
-                    "image_sm": "Images_small/buscolaropa.png",
+                    "ico_btn": "Images_btn/buscolaropa.png",
                     "audio": "Sounds/busco la ropa.wav"
                 },
                 {
                     "text": "Me pongo ropa interior limpia",
                     "image": "Images/ropainteriorlimpia.png",
-                    "image_sm": "Images_small/ropainteriorlimpia.png",
                     "audio": "Sounds/me pongo ropa interior limpia.wav"
                 },
                 {
                     "text": "Me visto la parte de arriba",
                     "image": "Images/mevistodearriba.png",
-                    "image_sm": "Images_small/mevistodearriba.png",
                     "audio": "Sounds/me visto la parte de arriba.wav"
                 },
                 {
                     "text": "Me visto la parte de abajo",
                     "image": "Images/mevistodeabajo.png",
-                    "image_sm": "Images_small/mevistodeabajo.png",
                     "audio": "Sounds/me visto la parte de abajo.wav"
                 },
                 {
                     "text": "Me pongo las zapatillas",
                     "image": "Images/mepongozapatillas.png",
-                    "image_sm": "Images_small/mepongozapatillas.png",
                     "audio": "Sounds/me pongo las zapatillas.wav"
                 }
             ],
@@ -433,53 +489,66 @@ class StepsWindow:
                 {
                     "text": "Abro la canilla",
                     "image": "Images/Abro la canilla.png",
-                    "image_sm": "Images_small/Abro la canilla.png",
+                    "ico_btn": "Images_btn/Me enjabono las manos.png",
                     "audio": "Sounds/Abro la canilla.wav"
                 },
                 {
-                    "text": "Me mojo las manos y las enjabono",
-                    "image": "Images/Me mojo las manos y las enjabono.png",
-                    "image": "Images/Me mojo las manos y las enjabono.png",
-                    "image_sm": "Images_small/Me mojo las manos y las enjabono.png",
+                    "text": "Me mojo las manos",
+                    "image": "Images/Me enjuago.png",
+                    "audio": "Sounds/Me mojo las manos.wav"
+                },
+                {
+                    "text": "Me enjabono las manos",
+                    "image": "Images/Me enjabono las manos.png",
                     "audio": "Sounds/Me mojo las manos y las enjabono.wav"
                 },
                 {
                     "text": "Me enjuago",
                     "image": "Images/Me enjuago.png",
-                    "image_sm": "Images_small/Me enjuago.png",
                     "audio": "Sounds/Me enjuago.wav"
                 },
                 {
                     "text": "Cierro la canilla",
                     "image": "Images/Cierro la canilla.png",
-                    "image_sm": "Images_small/Cierro la canilla.png",
                     "audio": "Sounds/Cierro la canilla.wav"
                 },
                 {
                     "text": "Me seco las manos",
                     "image": "Images/Me seco las manos.png",
-                    "image_sm": "Images_small/Me seco las manos.png",
                     "audio": "Sounds/Me seco las manos.wav"
                 }
             ],
-            "Me voy a comer": [
+            "Voy a comer": [
                 {
-                    "text": "Put on shirt",
-                    "image": "Images/put_on_shirt.png",
-                    "image_sm": "Image_small/put_on_shirt.png",
-                    "audio": "Sounds\put_on_shirt.wav"
+                    "text": "Me lavo las manos",
+                    "image": "Images/Me enjabono las manos.png",
+                    "ico_btn": "Images_btn/voyacomer.png",
+                    "audio": "Sounds\Me lavo las manos.wav"
                 },
                 {
-                    "text": "Put on pants",
-                    "image": "Images/put_on_pants.png",
-                    "image_sm": "Image_small/put_on_pants.png",
-                    "audio": "Sounds\put_on_pants.wav"
+                    "text": "Me siento a la mesa",
+                    "image": "Images/sentarse a la mesa.png",
+                    "audio": "Sounds\me siento a la mesa.wav"
                 },
                 {
-                    "text": "Put on shoes",
-                    "image": "Images/put_on_shoes.png",
-                    "image_sm": "Image_small/put_on_shoes.png",
-                    "audio": "Sounds\put_on_shoes.wav"
+                    "text": "Elijo la comida",
+                    "image": "Images/elijo la comida.png",
+                    "audio": "Sounds/elijo la comida.wav"
+                },
+                {
+                    "text": "Uso los cubiertos para comer",
+                    "image": "Images/uso los cubiertos.png",
+                    "audio": "Sounds/uso los cubiertos para comer.wav"
+                },
+                {
+                    "text": "Como con traquilidad",
+                    "image": "Images/como tranquilo.png",
+                    "audio": "Sounds/como con tranquilidad.wav"
+                },
+                {
+                    "text": "Limpio y recojo mis cosas",
+                    "image": "Images/limpio y recojo mis cosas.png",
+                    "audio": "Sounds/limpio y recojo mis cosas.wav"
                 }
             ]
                 }  
@@ -502,12 +571,14 @@ class StepsWindow:
         image = tk.PhotoImage(file=step["image"])
         self.images.append(image)  # Agrega la imagen a la lista de imágenes
             
-        self.step_label = tk.Label(self.steps_container, text=step["text"].upper(),font=("Comic Sans MS",8))
+        self.step_label = tk.Label(self.steps_container, text=step["text"].upper(),font=("Comic Sans MS",8),bg=colors[0])
         self.step_label.grid(column=0, row=0)
 
             # Usa la imagen correspondiente en cada label
-        self.image_label = tk.Label(self.steps_container, image=image)
+        self.image_label = tk.Label(self.steps_container, image=image,bg=colors[0])
         self.image_label.grid(column=0, row=1,pady=5)
+        
+        self.image_label.bind("<Button-1>",lambda event:self.play_audio_b(event,sound))
 
         image_sound = tk.PhotoImage(file="listen1.png")
         self.images_sound.append(image_sound)
@@ -516,14 +587,18 @@ class StepsWindow:
         self.sounds.append(sound)
             
 
-        audio_button = tk.Button(self.steps_container, text="Play Audio", image=image_sound, command=partial(self.play_audio,sound))
-        audio_button.grid(column=0, row=2)
+        # audio_button = tk.Button(self.steps_container, text="Play Audio", image=image_sound, bd=0,command=partial(self.play_audio,sound),bg=colors[0])
+        # audio_button.grid(column=0, row=2)
                        
         image_check = tk.PhotoImage(file="no-comprobado+.png")
         self.images_check.append(image_check)
   
-        self.step_check = tk.Button(self.steps_container, image=image_check, highlightthickness=0, relief="flat", command= self.update_check)
+        self.step_check = tk.Button(self.steps_container, image=image_check, highlightthickness=0, relief="flat", width=150,command= self.update_check,bg=colors[0])
         self.step_check.grid(column=0, row=3,pady=20)
+        
+        self.play_audio(sound)
+        self.progressbar.grid(column=0,row=4,pady=120)
+        
         
             
         self.i+=1          
@@ -531,6 +606,9 @@ class StepsWindow:
 
     
     def play_audio(self, audio_file):
+
+        audio_file.play()
+    def play_audio_b(self, event,audio_file):
 
         audio_file.play()
         
@@ -544,6 +622,7 @@ class StepsWindow:
         sound_check.play()
         self.images_check_ok = tk.PhotoImage(file="comprobado+.png")
         self.step_check.config(image=self.images_check_ok)
+        self.barra_progreso(100/len(self.steps[self.routine]))
         self.root.after(1000,lambda:self.next_page())
 
 
@@ -555,10 +634,10 @@ class StepsWindow:
             sound_check.play()
             self.felicitar()
             self.image_next=tk.PhotoImage(file="siguiente.png")
-            self.next_step_button = tk.Button(self.steps_container, text="Siguiente rutina", command=self.next_routin,image=self.image_next,border=0)
+            self.next_step_button = tk.Button(self.steps_container, text="Siguiente rutina", command=self.next_routin,image=self.image_next,border=0,bg=colors[0])
             self.next_step_button.pack(pady=20) 
             self.go_main_screen_button=tk.Button(self.steps_container,text="Volver",command=self.go_back)
-            self.go_main_screen_button.pack(pady=80)
+            self.go_main_screen_button.pack(pady=60)
 
         else:
             self.show_step()
@@ -574,11 +653,18 @@ class StepsWindow:
             MainWindow(root)
     
     def felicitar(self):
-        self.image_a=tk.PhotoImage(file=self.steps[self.routine][0]["image"])
-        self.label_congratulations_img=tk.Label(self.steps_container,image=self.image_a)
+        self.image_a=tk.PhotoImage(file=self.steps[self.routine][0]["ico_btn"])
+        self.label_congratulations_img=tk.Label(self.steps_container,image=self.image_a,bg=colors[0])
         self.label_congratulations_img.pack(pady=5)
-        self.label_congratulations=tk.Label(self.steps_container,text="¡Felicitaciones!",font=("Comic Sans MS",16),fg="blue")
+        self.label_congratulations=tk.Label(self.steps_container,text="¡Felicitaciones!",font=("Comic Sans MS",22,"bold"),fg=colors[2],bg=colors[0])
         self.label_congratulations.pack(pady=5)
+        current_user.give_stars(10)
+    
+    def barra_progreso(self,z):
+        self.progressbar_value=z        
+        self.progressbar["value"]+=self.progressbar_value
+        self.steps_container.update_idletasks()
+        
     
     def go_back(self):
         self.routin_title.pack_forget()
@@ -594,8 +680,8 @@ root = tk.Tk()
 root.iconbitmap("ico.ico")
 root.title("Rutinario")
 current_user = User()
-#MainScreen(root)
-MainWindow(root)
+MainScreen(root)
+
 root.mainloop()
 
 
